@@ -32,7 +32,10 @@ export const useBudgetStore = create(
                 set((state) => ({
                     expenses: [
                         ...state.expenses,
-                        { ...expense, id: crypto.randomUUID() },
+                        {
+                            ...expense,
+                            id: expense.id || crypto.randomUUID(), // ✅ use provided ID if given
+                        },
                     ],
                 })),
             updateExpense: (id, newData) =>
