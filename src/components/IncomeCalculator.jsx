@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useBudgetStore } from '../state/budgetStore'
 import {
   Box,
+  Flex,
   Heading,
   Input,
   Stack,
@@ -58,6 +59,7 @@ function calculateTax(gross, brackets) {
 }
 
 export default function IncomeCalculator() {
+  const [showInputs, setShowInputs] = useState(true)
   const [showDetails, setShowDetails] = useState(false)
 
   const income = useBudgetStore((s) => s.income)
@@ -100,76 +102,83 @@ export default function IncomeCalculator() {
 
   return (
     <Box borderWidth="1px" borderRadius="lg" p={4} mb={6}>
-      <Heading size="md" mb={3}>Income</Heading>
+      <Flex mb={2} justifyContent="space-between" alignItems="center">
+        <Heading size="md">Income</Heading>
+        <Button size="xs" variant="link" colorScheme="blue" ml={2} onClick={() => setShowInputs(!showInputs)}>
+          {showInputs ? 'Hide Inputs' : 'Show Inputs'}
+        </Button>
+      </Flex>
 
-      {/* Income Type Toggle */}
-      <FormControl mb={4}>
-        <FormLabel>Income Type</FormLabel>
-        <RadioGroup
-          value={income.type}
-          onChange={(val) => setIncome({ type: val })}
-        >
-          <HStack spacing={4}>
-            <Radio value="hourly">Hourly</Radio>
-            <Radio value="salary">Salary</Radio>
-          </HStack>
-        </RadioGroup>
-      </FormControl>
-
-      {/* Hourly Inputs */}
-      {hourly && (
-        <Stack spacing={3}>
-          <FormControl>
-            <FormLabel>Hourly Rate ($/hr)</FormLabel>
-            <Input
-              type="number"
-              value={income.hourlyRate}
-              onChange={(e) => handleChange('hourlyRate', e.target.value)}
-            />
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>Hours per Week</FormLabel>
-            <Input
-              type="number"
-              value={income.hoursPerWeek}
-              onChange={(e) => handleChange('hoursPerWeek', e.target.value)}
-            />
-          </FormControl>
-        </Stack>
-      )}
-
-      {/* Salary Input */}
-      {income.type === 'salary' && (
-        <FormControl>
-          <FormLabel>Annual Gross Salary</FormLabel>
-          <Input
-            type="number"
-            value={income.grossSalary}
-            onChange={(e) => handleChange('grossSalary', e.target.value)}
-          />
+      <Collapse mb={4} in={showInputs} animateOpacity>
+        {/* Income Type Toggle */}
+        <FormControl mb={4}>
+          <FormLabel>Income Type</FormLabel>
+          <RadioGroup
+            value={income.type}
+            onChange={(val) => setIncome({ type: val })}
+          >
+            <HStack spacing={4}>
+              <Radio value="hourly">Hourly</Radio>
+              <Radio value="salary">Salary</Radio>
+            </HStack>
+          </RadioGroup>
         </FormControl>
-      )}
 
-      {/* State Selector */}
-      <FormControl mt={5}>
-        <FormLabel>Select State (for tax estimate)</FormLabel>
-        <Select
-          value={income.state}
-          onChange={(e) => setIncome({ state: e.target.value })}
-        >
-          <option value="WI">Wisconsin</option>
-        </Select>
-      </FormControl>
+        {/* Hourly Inputs */}
+        {hourly && (
+          <Stack spacing={3}>
+            <FormControl>
+              <FormLabel>Hourly Rate ($/hr)</FormLabel>
+              <Input
+                type="number"
+                value={income.hourlyRate}
+                onChange={(e) => handleChange('hourlyRate', e.target.value)}
+              />
+            </FormControl>
 
-      {/* Estimated Tax Output */}
+            <FormControl>
+              <FormLabel>Hours per Week</FormLabel>
+              <Input
+                type="number"
+                value={income.hoursPerWeek}
+                onChange={(e) => handleChange('hoursPerWeek', e.target.value)}
+              />
+            </FormControl>
+          </Stack>
+        )}
+
+        {/* Salary Input */}
+        {income.type === 'salary' && (
+          <FormControl>
+            <FormLabel>Annual Gross Salary</FormLabel>
+            <Input
+              type="number"
+              value={income.grossSalary}
+              onChange={(e) => handleChange('grossSalary', e.target.value)}
+            />
+          </FormControl>
+        )}
+
+        {/* State Selector */}
+        <FormControl mt={5} mb={4}>
+          <FormLabel>Select State (for tax estimate)</FormLabel>
+          <Select
+            value={income.state}
+            onChange={(e) => setIncome({ state: e.target.value })}
+          >
+            <option value="WI">Wisconsin</option>
+          </Select>
+        </FormControl>
+      </Collapse>
+
+      {/* Estimated Income Output */}
       {grossSalary > 0 && (
-        <Box mt={6} p={4} borderWidth={1} borderRadius="md" bg="gray.50">
-          <StatGroup mt={6}>
+        <Box mt={2} px={4} py={3} borderWidth={1} borderRadius="md" bg="gray.50">
+          <StatGroup>
             <Stat>
               <StatLabel>Est. Gross Salary</StatLabel>
               <StatNumber color="teal.600">${grossSalary.toLocaleString()}</StatNumber>
-              <StatHelpText>Before taxes</StatHelpText>
+              <StatHelpText mb={0}>Before taxes</StatHelpText>
             </Stat>
 
             <Stat>
@@ -182,7 +191,7 @@ export default function IncomeCalculator() {
               <StatNumber color="green.600">
                 ${netSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </StatNumber>
-              <StatHelpText>
+              <StatHelpText mb={0}>
                 After taxes
                 <Button size="xs" variant="link" colorScheme="blue" ml={2} onClick={() => setShowDetails(!showDetails)}>
                   {showDetails ? 'Hide Breakdown' : 'Show Breakdown'}
