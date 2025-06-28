@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useBudgetStore } from '../state/budgetStore'
 import {
   Box,
@@ -93,6 +93,10 @@ export default function IncomeCalculator() {
   const federalTax = calculateTax(grossSalary, FEDERAL_BRACKETS)
   const stateTax = calculateTax(grossSalary, STATE_BRACKETS[income.state] || [])
   const netSalary = grossSalary - federalTax - stateTax - socialSecurityTax - medicareTax
+
+  useEffect(() => {
+    setIncome({ netIncome: netSalary })
+  }, [netSalary])
 
   return (
     <Box borderWidth="1px" borderRadius="lg" p={4} mb={6}>
