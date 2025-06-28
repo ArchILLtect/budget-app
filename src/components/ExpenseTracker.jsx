@@ -1,6 +1,9 @@
+import { useState, useEffect } from 'react'
 import { useBudgetStore } from '../state/budgetStore'
 import {
   Box,
+  Flex,
+  Collapse,
   Heading,
   Stack,
   Input,
@@ -8,72 +11,142 @@ import {
   Text,
   HStack,
   IconButton,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  Radio
 } from '@chakra-ui/react'
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
 
 // TODO: Use FormErrorMessage for better validation feedback
 
-export default function ExpenseTracker({ netSalary }) {
+export default function ExpenseTracker({ netIncome }) {
+  const [savingsMode, setSavingsMode] = useState('none') // 'none' | '10' | '20' | 'custom'
+  const [customSavings, setCustomSavings] = useState(0)
+  const [showInputs, setShowInputs] = useState(true)
   const expenses = useBudgetStore((s) => s.expenses)
   const addExpense = useBudgetStore((s) => s.addExpense)
   const updateExpense = useBudgetStore((s) => s.updateExpense)
   const removeExpense = useBudgetStore((s) => s.removeExpense)
-  const netIncome = useBudgetStore((s) => s.income.netIncome)
   const monthlyIncome = netIncome / 12
-  const suggestedSavings10 = monthlyIncome * 0.10
-  const suggestedSavings20 = monthlyIncome * 0.20
 
   const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
+  const savingsValue = expenses.find(e => e.id === 'savings')?.amount || 0
   const leftover = monthlyIncome - totalExpenses
+
+  useEffect(() => {
+    const monthlyIncome = netIncome / 12
+
+    let savingsPercent = 0
+    if (savingsMode === '10') savingsPercent = 0.1
+    else if (savingsMode === '20') savingsPercent = 0.2
+    else if (savingsMode === 'custom' && customSavings) savingsPercent = customSavings / 100
+
+    const savingsAmount = parseFloat((monthlyIncome * savingsPercent).toFixed(2))
+
+    const existing = expenses.find(e => e.id === 'savings')
+    if (savingsMode === 'none') {
+      if (existing) removeExpense('savings')
+    } else {
+      if (existing) {
+        updateExpense('savings', { amount: savingsAmount })
+      } else {
+        addExpense({ id: 'savings', name: 'Savings', amount: savingsAmount, isSavings: true })
+      }
+    }
+  }, [savingsMode, customSavings, netIncome])
 
   return (
     <Box borderWidth="1px" borderRadius="lg" p={4} mt={6}>
-      <Heading size="md" mb={3}>Expenses</Heading>
+      <Flex justifyContent="space-between" alignItems="center">
+        <Heading size="md" mb={3}>Expenses</Heading>
+        <Button size="xs" variant="link" colorScheme="blue" ml={2} onClick={() => setShowInputs(!showInputs)}>
+          {showInputs ? 'Hide Inputs' : 'Show Inputs'}
+        </Button>
+      </Flex>
 
       <Stack spacing={3}>
-        {expenses.map((expense) => (
-          <HStack key={expense.id}>
-            <Input
-              value={expense.name}
-              isInvalid={!expense.name.trim()}
-              onChange={(e) =>
-                updateExpense(expense.id, { name: e.target.value })
-              }
-              placeholder="Expense name"
-            />
-            <Input
-              type="number"
-              value={expense.amount}
-              isInvalid={expense.amount < 0}
-              onChange={(e) =>
-                updateExpense(expense.id, { amount: parseFloat(e.target.value) || 0 })
-              }
-              placeholder="Amount"
-            />
-            {expense.name.toLowerCase() !== 'rent' && (
-              <IconButton
-                aria-label="Remove expense"
-                icon={<DeleteIcon />}
-                onClick={() => removeExpense(expense.id)}
-                size="sm"
-                colorScheme="red"
-              />
-            )}
-          </HStack>
-        ))}
+        <Collapse mb={4} in={showInputs} animateOpacity>
+          <Stack spacing={3}>
+            {expenses.map((expense) => (
+              <HStack key={expense.id}>
+                <Input
+                  value={expense.name}
+                  isInvalid={!expense.name.trim()}
+                  onChange={(e) =>
+                    updateExpense(expense.id, { name: e.target.value })
+                  }
+                  placeholder="Expense name"
+                />
+                <Input
+                  type="number"
+                  value={expense.amount}
+                  isInvalid={expense.amount < 0}
+                  onChange={(e) =>
+                    updateExpense(expense.id, { amount: parseFloat(e.target.value) || 0 })
+                  }
+                  placeholder="Amount"
+                />
+                {expense.id !== 'rent' && !expense.isSavings && (
+                  <IconButton
+                    aria-label="Remove expense"
+                    icon={<DeleteIcon />}
+                    onClick={() => removeExpense(expense.id)}
+                    size="sm"
+                    colorScheme="red"
+                  />
+                )}
+              </HStack>
+            ))}
 
-        <Button
-          onClick={() => addExpense({ name: '', amount: 0 })}
-          leftIcon={<AddIcon />}
-          size="sm"
-          alignSelf="start"
-        >
-          Add Expense
-        </Button>
+            <Button
+              onClick={() => addExpense({ name: '', amount: 0 })}
+              leftIcon={<AddIcon />}
+              size="sm"
+              alignSelf="start"
+            >
+              Add Expense
+            </Button>
 
-        <Box pt={4}>
+            <FormControl mt={4}>
+              <FormLabel fontWeight="semibold">Include Savings?</FormLabel>
+              <RadioGroup
+                value={savingsMode}
+                onChange={(val) => setSavingsMode(val)}
+              >
+                <Stack direction="row">
+                  <Radio value="none">None</Radio>
+                  <Radio value="10">10%</Radio>
+                  <Radio value="20">20%</Radio>
+                  <Radio value="custom">Custom</Radio>
+                </Stack>
+              </RadioGroup>
+
+              {savingsMode === 'custom' && (
+                <Input
+                  mt={2}
+                  type="number"
+                  max={100}
+                  min={1}
+                  value={customSavings || ''}
+                  placeholder="Enter custom %"
+                  onChange={(e) => setCustomSavings(parseFloat(e.target.value) || 0)}
+                />
+              )}
+            </FormControl>
+          </Stack>
+        </Collapse>
+
+        <Box>
           <Text fontWeight="semibold">Estimated Monthly Net Income:</Text>
           <Text>${monthlyIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+
+          {savingsValue > 0 && (
+            <Box>
+            <Text fontWeight="semibold" mt={3}>Total Savings:</Text>
+            <Text color="red.500">${savingsValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+            </Box>
+          )}
 
           <Text fontWeight="semibold" mt={3}>Total Expenses:</Text>
           <Text color="red.500">${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
@@ -81,11 +154,6 @@ export default function ExpenseTracker({ netSalary }) {
           <Text fontWeight="semibold" mt={3}>Leftover After Expenses:</Text>
           <Text color={leftover >= 0 ? 'green.600' : 'red.600'} fontSize="xl">
             ${leftover.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </Text>
-          <Text fontWeight="semibold" mt={4}>Suggested Savings:</Text>
-          <Text fontSize="sm" color="gray.600">
-            10%: ${suggestedSavings10.toLocaleString(undefined, { minimumFractionDigits: 2 })} &nbsp; | &nbsp;
-            20%: ${suggestedSavings20.toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </Text>
         </Box>
       </Stack>
