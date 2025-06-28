@@ -2,6 +2,7 @@ import { useBudgetStore } from './state/budgetStore'
 import { Box, Heading, Button } from '@chakra-ui/react'
 import IncomeCalculator from './components/IncomeCalculator'
 import ExpenseTracker from './components/ExpenseTracker'
+import ExpensePie from './components/ExpensePie'
 
 function App() {
   const income = useBudgetStore((s) => s.income)
@@ -14,6 +15,7 @@ function App() {
       <pre>{JSON.stringify(income, null, 2)}</pre>
       <IncomeCalculator />
       <ExpenseTracker netSalary={income.netSalary} />
+      <ExpensePie />
     </Box>
   )
 }
