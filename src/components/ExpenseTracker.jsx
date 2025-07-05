@@ -14,7 +14,11 @@ import {
   FormControl,
   FormLabel,
   RadioGroup,
-  Radio
+  Radio,
+  Stat,
+  StatGroup,
+  StatLabel,
+  StatNumber
 } from '@chakra-ui/react'
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
 
@@ -59,7 +63,7 @@ export default function ExpenseTracker({ netIncome }) {
   return (
     <Box borderWidth="1px" borderRadius="lg" p={4} mt={6}>
       <Flex justifyContent="space-between" alignItems="center">
-        <Heading size="md" mb={3}>Expenses</Heading>
+        <Heading size="md" mb={3}>Expenses (Monthly)</Heading>
         <Button size="xs" variant="link" colorScheme="blue" ml={2} onClick={() => setShowInputs(!showInputs)}>
           {showInputs ? 'Hide Inputs' : 'Show Inputs'}
         </Button>
@@ -136,25 +140,32 @@ export default function ExpenseTracker({ netIncome }) {
             </FormControl>
           </Stack>
         </Collapse>
+        <Box mt={2} px={4} py={3} borderWidth={1} borderRadius="md" bg="gray.50">
+          <StatGroup>
+            <Stat textAlign={'center'}>
+              <StatLabel>Est. Net Income</StatLabel>
+              <StatNumber color="teal.600">${monthlyIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</StatNumber>
+            </Stat>
 
-        <Box>
-          <Text fontWeight="semibold">Estimated Monthly Net Income:</Text>
-          <Text>${monthlyIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+            {savingsValue > 0 && (
+            <Stat textAlign={'center'}>
+              <StatLabel>Total Savings</StatLabel>
+              <StatNumber color="teal.600">${savingsValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</StatNumber>
+            </Stat>
+            )}
 
-          {savingsValue > 0 && (
-            <Box>
-            <Text fontWeight="semibold" mt={3}>Total Savings:</Text>
-            <Text color="red.500">${savingsValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
-            </Box>
-          )}
+            <Stat textAlign={'center'}>
+              <StatLabel>Total Expenses</StatLabel>
+              <StatNumber color="teal.600">${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</StatNumber>
+            </Stat>
 
-          <Text fontWeight="semibold" mt={3}>Total Expenses:</Text>
-          <Text color="red.500">${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
-
-          <Text fontWeight="semibold" mt={3}>Leftover After Expenses:</Text>
-          <Text color={leftover >= 0 ? 'green.600' : 'red.600'} fontSize="xl">
-            ${leftover.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </Text>
+            <Stat textAlign={'center'}>
+              <StatLabel>Leftover</StatLabel>
+              <StatNumber color={leftover >= 0 ? 'green.600' : 'red.600'} fontSize="xl">
+                ${leftover.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </StatNumber>
+            </Stat>
+          </StatGroup>
         </Box>
       </Stack>
     </Box>

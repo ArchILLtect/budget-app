@@ -175,13 +175,13 @@ export default function IncomeCalculator() {
       {grossSalary > 0 && (
         <Box mt={2} px={4} py={3} borderWidth={1} borderRadius="md" bg="gray.50">
           <StatGroup>
-            <Stat>
+            <Stat textAlign={'center'}>
               <StatLabel>Est. Gross Salary</StatLabel>
               <StatNumber color="teal.600">${grossSalary.toLocaleString()}</StatNumber>
               <StatHelpText mb={0}>Before taxes</StatHelpText>
             </Stat>
 
-            <Stat>
+            <Stat textAlign={'center'}>
               <StatLabel>
                 💰 Est. Net Salary
                 <Tooltip label="Includes federal, state, SS, and Medicare taxes" hasArrow placement="right">
