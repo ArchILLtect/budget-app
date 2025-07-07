@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { calculateTotalTaxes } from "../utils/taxUtils";
 
 // Format: { name: string, amount: number }
 const defaultExpenses = [{ id: "rent", name: "Rent", amount: 0 }];
@@ -47,6 +48,30 @@ export const useBudgetStore = create(
                     }
                 }, 0);
             },
+            getTotalNetIncome: () => {
+                const { incomeSources } = useBudgetStore.getState();
+                const totalGross = incomeSources.reduce((sum, source) => {
+                    if (source.type === "hourly") {
+                        const base = Math.min(source.hoursPerWeek || 0, 40);
+                        const ot = Math.max((source.hoursPerWeek || 0) - 40, 0);
+                        return (
+                            sum +
+                            ((source.hourlyRate || 0) * base +
+                                (source.hourlyRate || 0) * 1.5 * ot) *
+                                52
+                        );
+                    } else {
+                        return sum + (source.grossSalary || 0);
+                    }
+                }, 0);
+
+                const taxes = calculateTotalTaxes(totalGross);
+                return {
+                    net: totalGross - taxes.total,
+                    gross: totalGross,
+                    breakdown: taxes,
+                };
+            },
             addIncomeSource: (source) =>
                 set((state) => ({
                     incomeSources: [
@@ -64,15 +89,18 @@ export const useBudgetStore = create(
                     ),
                 })),
             removeIncomeSource: (id) =>
-                set((state) => ({
-                    incomeSources: state.incomeSources.filter(
+                set((state) => {
+                    const newSources = state.incomeSources.filter(
                         (s) => s.id !== id
-                    ),
-                    selectedSourceId:
-                        state.selectedSourceId === id
-                            ? null
-                            : state.selectedSourceId,
-                })),
+                    );
+                    return {
+                        incomeSources: newSources,
+                        selectedSourceId:
+                            state.selectedSourceId === id
+                                ? newSources[0]?.id || null
+                                : state.selectedSourceId,
+                    };
+                }),
             selectIncomeSource: (id) => set(() => ({ selectedSourceId: id })),
             addExpense: (expense) =>
                 set((state) => ({
@@ -94,7 +122,22 @@ export const useBudgetStore = create(
                 set((state) => ({
                     expenses: state.expenses.filter((e) => e.id !== id),
                 })),
-            reset: () => set({ income: {}, expenses: defaultExpenses }),
+            reset: () =>
+                set({
+                    incomeSources: [
+                        {
+                            id: "main",
+                            label: "Main Job",
+                            type: "hourly",
+                            hourlyRate: 25,
+                            hoursPerWeek: 40,
+                            grossSalary: 0,
+                            state: "WI",
+                        },
+                    ],
+                    selectedSourceId: "main",
+                    expenses: defaultExpenses,
+                }),
 
             // future: scenarios[]
         }),
