@@ -9,25 +9,71 @@ const defaultExpenses = [{ id: "rent", name: "Rent", amount: 0 }];
 export const useBudgetStore = create(
     persist(
         (set) => ({
-            income: {
-                type: "hourly", // 'hourly' | 'salary'
-                hourlyRate: 0,
-                hoursPerWeek: 40,
-                overtimeThreshold: 40, // Hours per week before overtime kicks in
-                weeklyChecks: [],
-                grossSalary: 0,
-                taxRate: 0.15,
-                state: "WI", // Default state for tax estimate
-                estimatedTax: 0, // Calculated based on gross salary and tax rate
-                netIncome: 0, // Calculated based on gross salary and estimated tax
-                netWeeklyIncome: 0, // Calculated based on net income and weeks in a year
-                weeksInYear: 52, // Default value, can be adjusted
-            },
+            incomeSources: [
+                {
+                    id: "main",
+                    label: "Main Job",
+                    type: "hourly",
+                    hourlyRate: 25,
+                    hoursPerWeek: 40,
+                    grossSalary: 0,
+                    state: "WI",
+                },
+            ],
+            selectedSourceId: "main",
             expenses: defaultExpenses,
             scenario: "Main",
+            getTotalGrossIncome: () => {
+                const { incomeSources } = useBudgetStore.getState();
 
-            setIncome: (data) =>
-                set((state) => ({ income: { ...state.income, ...data } })),
+                return incomeSources.reduce((sum, source) => {
+                    if (source.type === "hourly") {
+                        const baseHours = Math.min(
+                            source.hoursPerWeek || 0,
+                            40
+                        );
+                        const overtime = Math.max(
+                            (source.hoursPerWeek || 0) - 40,
+                            0
+                        );
+                        return (
+                            sum +
+                            ((source.hourlyRate || 0) * baseHours +
+                                (source.hourlyRate || 0) * 1.5 * overtime) *
+                                52
+                        );
+                    } else {
+                        return sum + (source.grossSalary || 0);
+                    }
+                }, 0);
+            },
+            addIncomeSource: (source) =>
+                set((state) => ({
+                    incomeSources: [
+                        ...state.incomeSources,
+                        {
+                            ...source,
+                            id: source.id || crypto.randomUUID(), // ✅ Only generate if one wasn't provided
+                        },
+                    ],
+                })),
+            updateIncomeSource: (id, updates) =>
+                set((state) => ({
+                    incomeSources: state.incomeSources.map((s) =>
+                        s.id === id ? { ...s, ...updates } : s
+                    ),
+                })),
+            removeIncomeSource: (id) =>
+                set((state) => ({
+                    incomeSources: state.incomeSources.filter(
+                        (s) => s.id !== id
+                    ),
+                    selectedSourceId:
+                        state.selectedSourceId === id
+                            ? null
+                            : state.selectedSourceId,
+                })),
+            selectIncomeSource: (id) => set(() => ({ selectedSourceId: id })),
             addExpense: (expense) =>
                 set((state) => ({
                     expenses: [
@@ -52,6 +98,7 @@ export const useBudgetStore = create(
 
             // future: scenarios[]
         }),
+
         {
             name: "budget-app-storage", // key in localStorage
         }
