@@ -8,7 +8,6 @@ import {
   Stack,
   Input,
   Button,
-  Text,
   HStack,
   IconButton,
   FormControl,
@@ -24,7 +23,7 @@ import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
 
 // TODO: Use FormErrorMessage for better validation feedback
 
-export default function ExpenseTracker({ netIncome }) {
+export default function ExpenseTracker() {
   const [savingsMode, setSavingsMode] = useState('none') // 'none' | '10' | '20' | 'custom'
   const [customSavings, setCustomSavings] = useState(0)
   const [showInputs, setShowInputs] = useState(true)
@@ -37,7 +36,8 @@ export default function ExpenseTracker({ netIncome }) {
       removeExpense(id)
     }
   }
-  
+
+  const netIncome = useBudgetStore((s) => s.getTotalNetIncome().net);
   const monthlyIncome = netIncome / 12
 
   const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
