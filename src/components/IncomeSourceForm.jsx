@@ -8,7 +8,8 @@ import {
   FormLabel,
   HStack,
   Select,
-  Button
+  Button,
+  Center
 } from '@chakra-ui/react'
 
 export default function IncomeSourceForm({ source, onUpdate }) {
@@ -95,14 +96,17 @@ export default function IncomeSourceForm({ source, onUpdate }) {
         </Select>
       </FormControl>
       {source.id !== 'main' && (
-      <Button
-        mt={4}
-        size="sm"
-        colorScheme="red"
-        onClick={() => handleRemove()}
-      >
-        Delete This Source
-      </Button>
+        <Center>
+          <Button
+            mt={4}
+            size="sm"
+            colorScheme="red"
+            onClick={() => handleRemove()}
+          >
+            Delete This Source
+          </Button>
+        </Center>
+
     )}
     </>
   )
