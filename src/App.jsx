@@ -5,7 +5,7 @@ import ExpenseTracker from './components/ExpenseTracker'
 import ExpensePie from './components/ExpensePie'
 
 function App() {
-  const income = useBudgetStore((s) => s.income)
+    const netTotal = useBudgetStore.getState().getTotalNetIncome();
   // const expenses = useBudgetStore((s) => s.expenses)
 
   return (
@@ -17,7 +17,7 @@ function App() {
         {/* <pre>{JSON.stringify(income, null, 2)}</pre>
         <pre>{JSON.stringify(expenses, null, 2)}</pre> */}
         <IncomeCalculator />
-        <ExpenseTracker netIncome={income.netIncome} />
+        <ExpenseTracker netIncome={netTotal.net} />
         <ExpensePie />
       </Box>
     </Box>
