@@ -76,6 +76,7 @@ export default function IncomeCalculator() {
   const grossTotal = useBudgetStore.getState().getTotalGrossIncome();
 
   const activeSource = sources.find((s) => s.id === selectedId) || sources[0] || {}
+  const { net, breakdown } = useBudgetStore.getState().getTotalNetIncome();
 
   // TODO: Add filing status and adjust brackets accordingly
   // For now, we assume single filer
@@ -199,7 +200,7 @@ export default function IncomeCalculator() {
                 </Tooltip>
               </StatLabel>
               <StatNumber color="green.600">
-                ${netSalary.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </StatNumber>
               <StatHelpText mb={0}>
                 After taxes
@@ -211,19 +212,19 @@ export default function IncomeCalculator() {
                   <Stack mt={3} spacing={2}>
                     <Box bg="gray.100" p={3} borderRadius="md">
                       <Text fontWeight="semibold">Estimated Federal Tax:</Text>
-                      <Text>${federalTax.toFixed(2)}</Text>
+                      <Text>${breakdown.federalTax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
                     </Box>
                     <Box bg="gray.100" p={3} borderRadius="md">
                       <Text fontWeight="semibold">State Tax (WI):</Text>
-                      <Text>${stateTax.toFixed(2)}</Text>
+                      <Text>${breakdown.stateTax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
                     </Box>
                     <Box bg="gray.100" p={3} borderRadius="md">
                       <Text fontWeight="semibold">Social Security:</Text>
-                      <Text>${socialSecurityTax.toFixed(2)}</Text>
+                      <Text>${breakdown.ssTax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
                     </Box>
                     <Box bg="gray.100" p={3} borderRadius="md">
                       <Text fontWeight="semibold">Medicare:</Text>
-                      <Text>${medicareTax.toFixed(2)}</Text>
+                      <Text>${breakdown.medicareTax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
                     </Box>
                   </Stack>
                 </Collapse>
