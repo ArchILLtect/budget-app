@@ -32,6 +32,12 @@ export default function ExpenseTracker({ netIncome }) {
   const addExpense = useBudgetStore((s) => s.addExpense)
   const updateExpense = useBudgetStore((s) => s.updateExpense)
   const removeExpense = useBudgetStore((s) => s.removeExpense)
+  const handleRemove = (id) => {
+    if (window.confirm('Are you sure you want to remove this expense?')) {
+      removeExpense(id)
+    }
+  }
+  
   const monthlyIncome = netIncome / 12
 
   const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
@@ -95,7 +101,7 @@ export default function ExpenseTracker({ netIncome }) {
                   <IconButton
                     aria-label="Remove expense"
                     icon={<DeleteIcon />}
-                    onClick={() => removeExpense(expense.id)}
+                    onClick={() => handleRemove(expense.id)}
                     size="sm"
                     colorScheme="red"
                   />
