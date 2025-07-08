@@ -95,7 +95,7 @@ export default function IncomeSourceForm({ source, onUpdate }) {
           <option value="WI">Wisconsin</option>
         </Select>
       </FormControl>
-      {source.id !== 'main' && (
+      {source.id !== 'primary' && (
         <Center>
           <Button
             mt={4}
