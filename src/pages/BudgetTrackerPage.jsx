@@ -10,7 +10,7 @@ function FinanceTracker() {
         {/* <pre>{JSON.stringify(income, null, 2)}</pre>
         <pre>{JSON.stringify(expenses, null, 2)}</pre> */}
         <Center mb={4}>
-          <Heading>Budget Planner</Heading>
+          <Heading>Budget Tracker</Heading>
         </Center>
       </Box>
     </Box>
