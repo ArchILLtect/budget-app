@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useBudgetStore } from '../state/budgetStore'
+import { useBudgetStore } from '../../state/budgetStore'
 import {
   Box,
   Flex,
@@ -20,7 +20,7 @@ import {
   Collapse,
   Button
 } from '@chakra-ui/react'
-import IncomeSourceForm from './IncomeSourceForm'
+import IncomeSourceForm from '../../components/IncomeSourceForm'
 import { InfoIcon } from '@chakra-ui/icons'
 
 // TODO: use calculateTotalTaxes from taxUtils helper for consistency

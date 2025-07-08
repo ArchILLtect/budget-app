@@ -3,8 +3,8 @@ import { Box,
   Center
 } from '@chakra-ui/react'
 import ScenarioSelector from '../components/ScenarioSelector'
-import IncomeCalculator from '../components/IncomeCalculator'
-import ExpenseTracker from '../components/ExpenseTracker'
+import IncomeCalculator from '../features/planner/IncomeCalculator'
+import ExpenseTracker from '../features/planner/ExpenseTracker'
 import ExpensePie from '../components/ExpensePie'
 
 // TODO: Create a toast for when a scenario is created.

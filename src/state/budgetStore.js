@@ -229,6 +229,9 @@ export const useBudgetStore = create(
                     ],
                     selectedSourceId: "primary",
                     expenses: [{ id: "rent", name: "Rent", amount: 0 }],
+                    savingsMode: "none",
+                    customSavings: 0,
+                    // TODO: reset scenarios to default?
                 }),
             setScenario: (name) => set({ currentScenario: name }),
             saveScenario: (name) =>

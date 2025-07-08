@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useBudgetStore } from '../state/budgetStore'
+import { useBudgetStore } from '../../state/budgetStore'
 import {
   Box,
   Flex,
@@ -159,7 +159,11 @@ export default function ExpenseTracker() {
                   min={1}
                   value={customSavings || ''}
                   placeholder="Enter custom %"
-                  onChange={(e) => setCustomSavings(parseFloat(e.target.value) || 0)}
+                  onChange={(e) => {
+                    const raw = parseFloat(e.target.value) || 0
+                    const clamped = Math.min(Math.max(raw, 1), 100)
+                    setCustomSavings(clamped)
+                  }}
                 />
               )}
             </FormControl>

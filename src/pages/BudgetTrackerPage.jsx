@@ -2,7 +2,7 @@
 import { Box, Heading, Center } from '@chakra-ui/react'
 
 
-function BudgetTracker() {
+function FinanceTracker() {
 
   return (
     <Box bg="gray.200" p={4} minH="100vh">
@@ -17,4 +17,4 @@ function BudgetTracker() {
   )
 }
 
-export default BudgetTracker
+export default FinanceTracker

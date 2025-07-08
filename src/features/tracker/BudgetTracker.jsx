@@ -1,0 +1,1 @@
+// Coming Soon: This file is the component for the budget tracker feature, which will allow users to track their budgets and expenses. It will include components for displaying budget summaries, adding expenses, and visualizing spending patterns.

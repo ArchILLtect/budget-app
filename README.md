@@ -1,12 +1,81 @@
-# React + Vite
+🧭 Budgetizer App Overview
+Budgetizer is a personal budgeting web app built with React, Zustand, Chakra UI, and Recharts, designed to help users (like my son!) plan and track their monthly finances in a clear, interactive, and customizable way.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🧱 Core Features
 
-Currently, two official plugins are available:
+1. Budget Planner
+   Plan your monthly finances:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Add one or more income sources (hourly or salary-based)
 
-## Expanding the ESLint configuration
+Calculate estimated taxes (federal, state, Social Security, Medicare)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Enter and manage monthly expenses (rent, bills, savings, etc.)
+
+Visual breakdown via pie charts
+
+Supports multiple "scenarios" (e.g. Main, College, Summer Job) for quick switching
+
+2. Budget Tracker (In Development)
+   Track actual income and spending:
+
+Input actual amounts spent for each category
+
+Compare planned vs. actual budget
+
+Visual dashboard with summary stats and monthly view
+
+Persistent monthly data for historical review
+
+3. Accounts Integration (Planned via Plaid API)
+   Link real-world bank accounts (e.g. UW Credit Union):
+
+Sync balance and transactions
+
+View categorized spending by date or vendor
+
+Match real spending with budget tracker data
+
+Secure and user-controlled authentication
+
+🔄 Data Persistence
+Uses Zustand + localStorage for fast and persistent client-side data
+
+Will support future cloud syncing (AWS or Firebase planned)
+
+📅 Planned Feature Roadmap
+Multiple income sources with auto tax estimation
+
+Scenario support for different financial situations
+
+Persistent storage using Zustand middleware
+
+Expense pie chart breakdown
+
+Basic savings toggle with auto-calculation
+
+Budget Tracker dashboard (plan vs. actual)
+
+Add/Edit/Delete tracked months
+
+Account syncing via Plaid (secure API-based flow)
+
+Settings menu for "Reset All Data"
+
+Mobile-first optimization
+
+🚀 Tech Stack
+Tech Purpose
+React UI library
+Vite Dev/build tool
+Zustand Global state management
+Chakra UI Component styling & layout
+Recharts Data visualization (e.g. pie chart)
+Plaid API (Planned) Bank account sync
+
+🧠 Future Goals
+Add AI-based spending advice using OpenAI API
+
+Gamify savings (progress bar + rewards)
+
+Build native PWA or mobile app version
