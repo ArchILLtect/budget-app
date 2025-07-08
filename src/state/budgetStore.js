@@ -269,6 +269,35 @@ export const useBudgetStore = create(
                           }
                         : {};
                 }),
+            deleteScenario: (name) =>
+                set((state) => {
+                    const updated = { ...state.scenarios };
+                    delete updated[name];
+
+                    const isCurrent = state.currentScenario === name;
+                    const fallback = Object.keys(updated)[0] || "Main";
+
+                    return {
+                        scenarios: updated,
+                        ...(isCurrent && updated[fallback]
+                            ? {
+                                  currentScenario: fallback,
+                                  incomeSources: JSON.parse(
+                                      JSON.stringify(
+                                          updated[fallback].incomeSources
+                                      )
+                                  ),
+                                  expenses: JSON.parse(
+                                      JSON.stringify(updated[fallback].expenses)
+                                  ),
+                                  savingsMode:
+                                      updated[fallback].savingsMode || "none",
+                                  customSavings:
+                                      updated[fallback].customSavings || 0,
+                              }
+                            : {}),
+                    };
+                }),
         }),
 
         {

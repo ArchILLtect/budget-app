@@ -12,7 +12,7 @@ import ScenarioModal from './ScenarioModal';
 
 export default function ScenarioSelector() {
 
-    const { scenarios, currentScenario } = useBudgetStore();
+    const { scenarios, currentScenario, deleteScenario } = useBudgetStore();
     const selectedScenario = currentScenario || Object.keys(scenarios)[0];
     const loadScenario = useBudgetStore((s) => s.loadScenario)
 
@@ -30,6 +30,23 @@ export default function ScenarioSelector() {
                     <option key={name} value={name}>{name}</option>
                     ))}
                 </Select>
+                {/* Delete Scenario Button */}
+                {selectedScenario !== 'Main' && (
+                    <Button
+                        colorScheme="red"
+                        onClick={() => {
+                            if (
+                            selectedScenario &&
+                            confirm(`Delete scenario "${selectedScenario}"? This cannot be undone.`)
+                            ) {
+                            deleteScenario(selectedScenario);
+                            }
+                        }}
+                        >
+                        Delete
+                    </Button>
+                )}
+                {/* Add Scenario Button */}
                 <Button align="top" onClick={onOpen}>
                     <Flex as="kbd" fontWeight={900} fontSize={20}>+</Flex>
                 </Button>
