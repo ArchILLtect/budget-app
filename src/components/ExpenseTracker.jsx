@@ -24,13 +24,19 @@ import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
 // TODO: Use FormErrorMessage for better validation feedback
 
 export default function ExpenseTracker() {
-  const [savingsMode, setSavingsMode] = useState('none') // 'none' | '10' | '20' | 'custom'
-  const [customSavings, setCustomSavings] = useState(0)
   const [showInputs, setShowInputs] = useState(true)
-  const expenses = useBudgetStore((s) => s.expenses)
-  const addExpense = useBudgetStore((s) => s.addExpense)
-  const updateExpense = useBudgetStore((s) => s.updateExpense)
-  const removeExpense = useBudgetStore((s) => s.removeExpense)
+  const { currentScenario,
+    saveScenario,
+    incomeSources,
+    savingsMode,
+    setSavingsMode,
+    customSavings,
+    setCustomSavings,
+    expenses,
+    addExpense,
+    updateExpense,
+    removeExpense
+  } = useBudgetStore();
   const handleRemove = (id) => {
     if (window.confirm('Are you sure you want to remove this expense?')) {
       removeExpense(id)
@@ -50,21 +56,33 @@ export default function ExpenseTracker() {
     let savingsPercent = 0
     if (savingsMode === '10') savingsPercent = 0.1
     else if (savingsMode === '20') savingsPercent = 0.2
-    else if (savingsMode === 'custom' && customSavings) savingsPercent = customSavings / 100
+    else if (savingsMode === 'custom' && customSavings)
+      savingsPercent = customSavings / 100
 
     const savingsAmount = parseFloat((monthlyIncome * savingsPercent).toFixed(2))
 
-    const existing = expenses.find(e => e.id === 'savings')
+    const existing = expenses.find((e) => e.id === 'savings')
     if (savingsMode === 'none') {
       if (existing) removeExpense('savings')
     } else {
       if (existing) {
         updateExpense('savings', { amount: savingsAmount })
       } else {
-        addExpense({ id: 'savings', name: 'Savings', amount: savingsAmount, isSavings: true })
+        addExpense({
+          id: 'savings',
+          name: 'Savings',
+          amount: savingsAmount,
+          isSavings: true,
+        })
       }
     }
   }, [savingsMode, customSavings, netIncome])
+
+  useEffect(() => {
+    if (currentScenario) {
+      saveScenario(currentScenario);
+    }
+  }, [savingsMode, customSavings, expenses, incomeSources]);
 
   return (
     <Box borderWidth="1px" borderRadius="lg" p={4} mt={6}>

@@ -12,8 +12,8 @@ export const useBudgetStore = create(
         (set) => ({
             incomeSources: [
                 {
-                    id: "main",
-                    label: "Main Job",
+                    id: "primary",
+                    label: "Primary Job",
                     type: "hourly",
                     hourlyRate: 25,
                     hoursPerWeek: 40,
@@ -21,12 +21,46 @@ export const useBudgetStore = create(
                     state: "WI",
                 },
             ],
-            selectedSourceId: "main",
-            expenses: defaultExpenses,
-            scenario: "Main",
+            scenarios: {
+                Main: {
+                    name: "Main",
+                    incomeSources: [
+                        {
+                            id: "primary",
+                            label: "Primary Job",
+                            type: "hourly",
+                            hourlyRate: 25,
+                            hoursPerWeek: 40,
+                            grossSalary: 0,
+                            state: "WI",
+                        },
+                    ],
+                    expenses: [{ id: "rent", name: "Rent", amount: 0 }],
+                },
+                College: {
+                    name: "College",
+                    incomeSources: [
+                        {
+                            id: "primary",
+                            label: "Primary Job",
+                            type: "hourly",
+                            hourlyRate: 25,
+                            hoursPerWeek: 40,
+                            grossSalary: 0,
+                            state: "WI",
+                        },
+                    ],
+                    expenses: [{ id: "rent", name: "Rent", amount: 0 }],
+                },
+            },
+            selectedSourceId: "primary",
+            expenses: [{ id: "rent", name: "Rent", amount: 0 }],
+            savingsMode: "none", // 'none' | '10' | '20' | 'custom'
+            customSavings: 0,
+            currentScenario: "Main",
             getTotalGrossIncome: () => {
                 const { incomeSources } = useBudgetStore.getState();
-
+                if (!Array.isArray(incomeSources)) return 0;
                 return incomeSources.reduce((sum, source) => {
                     if (source.type === "hourly") {
                         const baseHours = Math.min(
@@ -73,61 +107,116 @@ export const useBudgetStore = create(
                 };
             },
             addIncomeSource: (source) =>
-                set((state) => ({
-                    incomeSources: [
-                        ...state.incomeSources,
-                        {
-                            ...source,
-                            id: source.id || crypto.randomUUID(), // ✅ Only generate if one wasn't provided
+                set((state) => {
+                    const newSource = {
+                        ...source,
+                        id: source.id || crypto.randomUUID(),
+                    };
+                    const updated = [...state.incomeSources, newSource];
+                    return {
+                        incomeSources: updated,
+                        scenarios: {
+                            ...state.scenarios,
+                            [state.currentScenario]: {
+                                ...state.scenarios[state.currentScenario],
+                                incomeSources: updated,
+                            },
                         },
-                    ],
-                })),
+                    };
+                }),
             updateIncomeSource: (id, updates) =>
-                set((state) => ({
-                    incomeSources: state.incomeSources.map((s) =>
+                set((state) => {
+                    const updated = state.incomeSources.map((s) =>
                         s.id === id ? { ...s, ...updates } : s
-                    ),
-                })),
+                    );
+                    return {
+                        incomeSources: updated,
+                        scenarios: {
+                            ...state.scenarios,
+                            [state.currentScenario]: {
+                                ...state.scenarios[state.currentScenario],
+                                incomeSources: updated,
+                            },
+                        },
+                    };
+                }),
             removeIncomeSource: (id) =>
                 set((state) => {
-                    const newSources = state.incomeSources.filter(
+                    const updated = state.incomeSources.filter(
                         (s) => s.id !== id
                     );
                     return {
-                        incomeSources: newSources,
+                        incomeSources: updated,
                         selectedSourceId:
                             state.selectedSourceId === id
-                                ? newSources[0]?.id || null
+                                ? updated[0]?.id || null
                                 : state.selectedSourceId,
+                        scenarios: {
+                            ...state.scenarios,
+                            [state.currentScenario]: {
+                                ...state.scenarios[state.currentScenario],
+                                incomeSources: updated,
+                            },
+                        },
                     };
                 }),
             selectIncomeSource: (id) => set(() => ({ selectedSourceId: id })),
             addExpense: (expense) =>
-                set((state) => ({
-                    expenses: [
-                        ...state.expenses,
-                        {
-                            ...expense,
-                            id: expense.id || crypto.randomUUID(), // ✅ use provided ID if given
+                set((state) => {
+                    const newExpense = {
+                        ...expense,
+                        id: expense.id || crypto.randomUUID(),
+                    };
+                    const updated = [...state.expenses, newExpense];
+                    return {
+                        expenses: updated,
+                        scenarios: {
+                            ...state.scenarios,
+                            [state.currentScenario]: {
+                                ...state.scenarios[state.currentScenario],
+                                expenses: updated,
+                            },
                         },
-                    ],
-                })),
+                    };
+                }),
             updateExpense: (id, newData) =>
-                set((state) => ({
-                    expenses: state.expenses.map((e) =>
+                set((state) => {
+                    const updated = state.expenses.map((e) =>
                         e.id === id ? { ...e, ...newData } : e
-                    ),
-                })),
+                    );
+                    return {
+                        expenses: updated,
+                        scenarios: {
+                            ...state.scenarios,
+                            [state.currentScenario]: {
+                                ...state.scenarios[state.currentScenario],
+                                expenses: updated,
+                            },
+                        },
+                    };
+                }),
             removeExpense: (id) =>
-                set((state) => ({
-                    expenses: state.expenses.filter((e) => e.id !== id),
-                })),
+                set((state) => {
+                    const updated = state.expenses.filter((e) => e.id !== id);
+                    return {
+                        expenses: updated,
+                        scenarios: {
+                            ...state.scenarios,
+                            [state.currentScenario]: {
+                                ...state.scenarios[state.currentScenario],
+                                expenses: updated,
+                            },
+                        },
+                    };
+                }),
+            setSavingsMode: (mode) => set(() => ({ savingsMode: mode })),
+            setCustomSavings: (value) => set(() => ({ customSavings: value })),
             reset: () =>
                 set({
                     incomeSources: [
                         {
-                            id: "main",
-                            label: "Main Job",
+                            id: "primary",
+                            label: "Primary Job",
                             type: "hourly",
                             hourlyRate: 25,
                             hoursPerWeek: 40,
@@ -135,11 +224,45 @@ export const useBudgetStore = create(
                             state: "WI",
                         },
                     ],
-                    selectedSourceId: "main",
-                    expenses: defaultExpenses,
+                    selectedSourceId: "primary",
+                    expenses: [{ id: "rent", name: "Rent", amount: 0 }],
                 }),
-
-            // future: scenarios[]
+            setScenario: (name) => set({ currentScenario: name }),
+            saveScenario: (name) =>
+                set((state) => ({
+                    scenarios: {
+                        ...state.scenarios,
+                        [name]: {
+                            name,
+                            incomeSources: JSON.parse(
+                                JSON.stringify(state.incomeSources)
+                            ),
+                            expenses: JSON.parse(
+                                JSON.stringify(state.expenses)
+                            ),
+                            savingsMode: state.savingsMode,
+                            customSavings: state.customSavings,
+                        },
+                    },
+                    currentScenario: name,
+                })),
+            loadScenario: (name) =>
+                set((state) => {
+                    const scenario = state.scenarios[name];
+                    return scenario
+                        ? {
+                              incomeSources: JSON.parse(
+                                  JSON.stringify(scenario.incomeSources)
+                              ),
+                              expenses: JSON.parse(
+                                  JSON.stringify(scenario.expenses)
+                              ),
+                              savingsMode: scenario.savingsMode || "none",
+                              customSavings: scenario.customSavings || 0,
+                              currentScenario: name,
+                          }
+                        : {};
+                }),
         }),
 
         {
