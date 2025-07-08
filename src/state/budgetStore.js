@@ -2,9 +2,6 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { calculateTotalTaxes } from "../utils/taxUtils";
 
-// Format: { name: string, amount: number }
-const defaultExpenses = [{ id: "rent", name: "Rent", amount: 0 }];
-
 // TODO: Allow users to change overtime threshold and tax rates
 
 export const useBudgetStore = create(
@@ -54,6 +51,12 @@ export const useBudgetStore = create(
                 },
             },
             selectedSourceId: "primary",
+            showIncomeInputs: true, // Controls visibility of income input fields
+            showExpenseInputs: true, // Controls visibility of income input fields
+            setShowIncomeInputs: (value) =>
+                set(() => ({ showIncomeInputs: value })),
+            setShowExpenseInputs: (value) =>
+                set(() => ({ showExpenseInputs: value })),
             expenses: [{ id: "rent", name: "Rent", amount: 0 }],
             savingsMode: "none", // 'none' | '10' | '20' | 'custom'
             customSavings: 0,
@@ -242,6 +245,7 @@ export const useBudgetStore = create(
                             ),
                             savingsMode: state.savingsMode,
                             customSavings: state.customSavings,
+                            showIncomeInputs: true,
                         },
                     },
                     currentScenario: name,
@@ -260,6 +264,8 @@ export const useBudgetStore = create(
                               savingsMode: scenario.savingsMode || "none",
                               customSavings: scenario.customSavings || 0,
                               currentScenario: name,
+                              // TODO: add following to reset input opening on scenario change
+                              showIncomeInputs: false, // 👈 Optional reset
                           }
                         : {};
                 }),

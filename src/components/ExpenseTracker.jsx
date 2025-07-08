@@ -24,9 +24,10 @@ import { AddIcon, DeleteIcon } from '@chakra-ui/icons'
 // TODO: Use FormErrorMessage for better validation feedback
 
 export default function ExpenseTracker() {
-  const [showInputs, setShowInputs] = useState(true)
   const { currentScenario,
     saveScenario,
+    showExpenseInputs,
+    setShowExpenseInputs,
     incomeSources,
     savingsMode,
     setSavingsMode,
@@ -88,13 +89,13 @@ export default function ExpenseTracker() {
     <Box borderWidth="1px" borderRadius="lg" p={4} mt={6}>
       <Flex justifyContent="space-between" alignItems="center">
         <Heading size="md" mb={3}>Expenses (Monthly)</Heading>
-        <Button size="xs" variant="link" colorScheme="blue" ml={2} onClick={() => setShowInputs(!showInputs)}>
-          {showInputs ? 'Hide Inputs' : 'Show Inputs'}
+        <Button size="xs" variant="link" colorScheme="blue" ml={2} onClick={() => setShowExpenseInputs(!showExpenseInputs)}>
+          {showExpenseInputs ? 'Hide Inputs' : 'Show Inputs'}
         </Button>
       </Flex>
 
       <Stack spacing={3}>
-        <Collapse mb={4} in={showInputs} animateOpacity>
+        <Collapse mb={4} in={showExpenseInputs} animateOpacity>
           <Stack spacing={3}>
             {expenses.map((expense) => (
               <HStack key={expense.id}>

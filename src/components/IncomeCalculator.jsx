@@ -63,10 +63,11 @@ function calculateTax(gross, brackets) {
 }
 
 export default function IncomeCalculator() {
-  const [showInputs, setShowInputs] = useState(true)
   const [showDetails, setShowDetails] = useState(false)
 
   const sources = useBudgetStore((s) => s.incomeSources)
+  const showIncomeInputs = useBudgetStore((s) => s.showIncomeInputs)
+  const setShowIncomeInputs = useBudgetStore((s) => s.setShowIncomeInputs)
   const selectedId = useBudgetStore((s) => s.selectedSourceId)
   const setSelected = useBudgetStore((s) => s.selectIncomeSource)
   const updateSource = useBudgetStore((s) => s.updateIncomeSource)
@@ -111,12 +112,12 @@ export default function IncomeCalculator() {
     <Box borderWidth="1px" borderRadius="lg" p={4} mb={6}>
       <Flex mb={2} justifyContent="space-between" alignItems="center">
         <Heading size="md">Income</Heading>
-        <Button size="xs" variant="link" colorScheme="blue" ml={2} onClick={() => setShowInputs(!showInputs)}>
-          {showInputs ? 'Hide Inputs' : 'Show Inputs'}
+        <Button size="xs" variant="link" colorScheme="blue" ml={2} onClick={() => setShowIncomeInputs(!showIncomeInputs)}>
+          {showIncomeInputs ? 'Hide Inputs' : 'Show Inputs'}
         </Button>
       </Flex>
 
-      <Collapse mb={4} in={showInputs} animateOpacity>
+      <Collapse mb={4} in={showIncomeInputs} animateOpacity>
         <Tabs
           index={sources.findIndex((s) => s.id === selectedId)}
           onChange={(index) => {
