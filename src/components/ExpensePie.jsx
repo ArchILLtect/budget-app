@@ -13,7 +13,7 @@ export default function ExpensePie() {
       value: e.amount,
     }))
 
-  if (chartData.length === 0) return null
+  if (chartData.length < 2) return null
 
   return (
     <Box borderWidth={1} borderRadius="md" p={4} mt={6}>
