@@ -7,6 +7,8 @@ import { calculateTotalTaxes } from "../utils/taxUtils";
 export const useBudgetStore = create(
     persist(
         (set) => ({
+            currentPage: "planner", // or null initially
+            setCurrentPage: (page) => set(() => ({ currentPage: page })),
             incomeSources: [
                 {
                     id: "primary",
