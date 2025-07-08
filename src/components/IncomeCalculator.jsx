@@ -23,6 +23,11 @@ import {
 import IncomeSourceForm from './IncomeSourceForm'
 import { InfoIcon } from '@chakra-ui/icons'
 
+// TODO: use calculateTotalTaxes from taxUtils helper for consistency
+// import { calculateTotalTaxes } from '../utils/taxUtils'
+
+
+
 // Federal brackets – 2024 Single Filer
 const FEDERAL_BRACKETS = [
   { min: 0, max: 11000, rate: 0.10 },
