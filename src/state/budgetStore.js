@@ -1,8 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { calculateTotalTaxes } from "../utils/taxUtils";
+import dayjs from "dayjs";
 
 // TODO: Allow users to change overtime threshold and tax rates
+
+const currentMonth = dayjs().format("YYYY-MM"); // e.g. "2025-07"
 
 export const useBudgetStore = create(
     persist(
@@ -63,6 +66,83 @@ export const useBudgetStore = create(
             savingsMode: "none", // 'none' | '10' | '20' | 'custom'
             customSavings: 0,
             currentScenario: "Main",
+            // 📅 Current month being tracked
+            selectedMonth: currentMonth,
+            setSelectedMonth: (month) => set(() => ({ selectedMonth: month })),
+            savingsGoal: 10000,
+            setSavingsGoal: (goal) => set(() => ({ savingsGoal: goal })),
+            savingsLogs: {}, // key: '2025-07', value: [{ amount, date }]
+            addSavingsLog: (month, entry) =>
+                set((state) => {
+                    const logs = state.savingsLogs[month] || [];
+                    return {
+                        savingsLogs: {
+                            ...state.savingsLogs,
+                            [month]: [...logs, entry],
+                        },
+                    };
+                }),
+            getSavingsForMonth: (month) => {
+                const { savingsLogs } = useBudgetStore.getState();
+                const logs = savingsLogs[month] || [];
+                return logs.reduce((sum, e) => sum + e.amount, 0);
+            },
+            monthlyPlans: {},
+            saveMonthlyPlan: (month, planData) =>
+                set((state) => {
+                    const newPlan = {
+                        id: crypto.randomUUID(),
+                        createdAt: new Date().toISOString(), // ✅ Add timestamp here
+                        ...planData,
+                    };
+
+                    // Only clone actuals if none exist for this month yet
+                    const existingActual = state.monthlyActuals[month];
+
+                    const newActual = existingActual ?? {
+                        actualIncome: +planData.netIncome?.toFixed(2) || 0,
+                        actualExpenses: JSON.parse(
+                            JSON.stringify(planData.expenses || [])
+                        ),
+                        actualSavings: +planData.totalSavings?.toFixed(2) || 0,
+                    };
+
+                    return {
+                        monthlyPlans: {
+                            ...state.monthlyPlans,
+                            [month]: newPlan,
+                        },
+                        monthlyActuals: {
+                            ...state.monthlyActuals,
+                            [month]: newActual,
+                        },
+                    };
+                }),
+            removeMonthlyPlan: (month) =>
+                set((state) => {
+                    const updatedPlans = { ...state.monthlyPlans };
+                    delete updatedPlans[month];
+
+                    const updatedActuals = { ...state.monthlyActuals };
+                    delete updatedActuals[month];
+
+                    return {
+                        monthlyPlans: updatedPlans,
+                        monthlyActuals: updatedActuals,
+                    };
+                }),
+            // 📊 Actuals for the month
+            monthlyActuals: {},
+            updateMonthlyActuals: (month, updates) =>
+                set((state) => ({
+                    monthlyActuals: {
+                        ...state.monthlyActuals,
+                        [month]: {
+                            ...state.monthlyActuals[month],
+                            ...updates,
+                        },
+                    },
+                })),
             getTotalGrossIncome: () => {
                 const { incomeSources } = useBudgetStore.getState();
                 if (!Array.isArray(incomeSources)) return 0;
