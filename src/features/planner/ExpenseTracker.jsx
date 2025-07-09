@@ -190,7 +190,7 @@ export default function ExpenseTracker() {
 
             <Stat textAlign={'center'}>
               <StatLabel>Leftover</StatLabel>
-              <StatNumber color={leftover >= 0 ? 'green.600' : 'red.600'} fontSize="xl">
+              <StatNumber color={leftover >= 0 ? 'green.600' : 'red.600'} fontSize="2xl">
                 ${leftover.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </StatNumber>
             </Stat>

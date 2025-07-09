@@ -187,7 +187,7 @@ export default function IncomeCalculator() {
           <StatGroup>
             <Stat textAlign={'center'}>
               <StatLabel>Est. Gross Salary</StatLabel>
-              <StatNumber color="teal.600">${grossTotal.toLocaleString()}</StatNumber>
+              <StatNumber color="teal.600">${grossTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</StatNumber>
               <StatHelpText mb={0}>Before taxes</StatHelpText>
             </Stat>
 
