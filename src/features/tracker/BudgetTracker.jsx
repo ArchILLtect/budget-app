@@ -1,1 +1,17 @@
-// Coming Soon: This file is the component for the budget tracker feature, which will allow users to track their budgets and expenses. It will include components for displaying budget summaries, adding expenses, and visualizing spending patterns.
+import {
+  Box
+} from '@chakra-ui/react';
+import { useBudgetStore } from '../../state/budgetStore';
+import MonthlyPlanSummary from '../../components/MonthlyPlanSummary';
+
+export default function SavingsProgressBar() {
+
+  const selectedMonth = useBudgetStore(s => s.selectedMonth);
+  const plan = useBudgetStore(s => s.monthlyPlans[selectedMonth]);
+
+  return (
+    <Box>
+      <MonthlyPlanSummary plan={plan} />
+    </Box>
+  );
+}
