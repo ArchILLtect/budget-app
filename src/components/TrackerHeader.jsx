@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 
 // TODO: Create an edit plan modal
 // TODO: Switch to using a modal for plan removal confirmation
+// TODO: ?Add an undo for plan removal?
 
 export default function TrackerHeader() {
     const selectedMonth = useBudgetStore((s) => s.selectedMonth);
