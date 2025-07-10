@@ -1,5 +1,6 @@
 import { Box,
     Center,
+    Flex,
     Text,
     Button,
     IconButton,
@@ -10,6 +11,9 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import { useBudgetStore } from '../state/budgetStore';
 import ScenarioPlanModal from '../components/ScenarioPlanModal';
 import dayjs from 'dayjs';
+
+// TODO: Create an edit plan modal
+// TODO: Switch to using a modal for plan removal confirmation
 
 export default function TrackerHeader() {
     const selectedMonth = useBudgetStore((s) => s.selectedMonth);
@@ -36,23 +40,26 @@ export default function TrackerHeader() {
     };
 
     return (
-        <Box p={2} borderRadius="lg" boxShadow="md" bg={useColorModeValue('white', 'gray.700')}>
-            <Center mb={1}>
-                <IconButton
-                    icon={<ArrowLeftIcon />}
-                    size="sm"
-                    onClick={() => shiftMonth(-1)}
-                    aria-label="Previous Month"
-                />
+        <Box p={2} borderTopRadius="lg" boxShadow="md" bg={useColorModeValue('gray.50', 'gray.700')}>
+            <Center my={1}>
+                <Flex bg={'white'}>
+                    <IconButton
+                        icon={<ArrowLeftIcon />}
+                        size="sm"
+                        onClick={() => shiftMonth(-1)}
+                        aria-label="Previous Month"
+                    />
 
-                <Text fontSize="lg" fontWeight="bold" mx={4}>{formatted}</Text>
+                    <Text fontSize="lg" fontWeight="bold" mx={4} >{formatted}</Text>
 
-                <IconButton
-                    icon={<ArrowRightIcon />}
-                    size="sm"
-                    onClick={() => shiftMonth(1)}
-                    aria-label="Next Month"
-                />
+                    <IconButton
+                        icon={<ArrowRightIcon />}
+                        size="sm"
+                        onClick={() => shiftMonth(1)}
+                        aria-label="Next Month"
+                    />
+                </Flex>
+
             </Center>
 
             {!plan ? (

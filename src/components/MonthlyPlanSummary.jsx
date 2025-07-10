@@ -1,5 +1,5 @@
 import { Box, Heading, Stat, StatGroup, Text,
-  StatLabel, StatNumber, 
+  StatLabel, StatNumber, useColorModeValue,
   Flex} from "@chakra-ui/react";
 import dayjs from "dayjs";
 
@@ -7,7 +7,7 @@ export default function MonthlyPlanSummary({ plan }) {
   if (!plan) return null;
 
   return (
-    <Box px={4} py={3} borderWidth={1} borderRadius="md" bg="gray.50">
+    <Box px={4} py={3} boxShadow="md" borderBottomRadius="lg" bg={useColorModeValue('white', 'gray.700')}>
       <Flex justifyContent="space-between" alignItems="center" mb={3}>
         <Heading size="md" mb={2}>Plan Summary</Heading>
         {plan.createdAt && (
