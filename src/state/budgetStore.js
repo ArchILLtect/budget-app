@@ -21,6 +21,7 @@ export const useBudgetStore = create(
                     hoursPerWeek: 40,
                     grossSalary: 0,
                     state: "WI",
+                    createdAt: new Date().toISOString(),
                 },
             ],
             scenarios: {
@@ -35,6 +36,7 @@ export const useBudgetStore = create(
                             hoursPerWeek: 40,
                             grossSalary: 0,
                             state: "WI",
+                            createdAt: new Date().toISOString(),
                         },
                     ],
                     expenses: [{ id: "rent", name: "Rent", amount: 0 }],
@@ -50,6 +52,7 @@ export const useBudgetStore = create(
                             hoursPerWeek: 40,
                             grossSalary: 0,
                             state: "WI",
+                            createdAt: new Date().toISOString(),
                         },
                     ],
                     expenses: [{ id: "rent", name: "Rent", amount: 0 }],
@@ -92,7 +95,7 @@ export const useBudgetStore = create(
                 set((state) => {
                     const newPlan = {
                         id: crypto.randomUUID(),
-                        createdAt: new Date().toISOString(), // ✅ Add timestamp here
+                        createdAt: new Date().toISOString(),
                         ...planData,
                     };
 
@@ -196,6 +199,7 @@ export const useBudgetStore = create(
                     const newSource = {
                         ...source,
                         id: source.id || crypto.randomUUID(),
+                        createdAt: new Date().toISOString(),
                     };
                     const updated = [...state.incomeSources, newSource];
                     return {
@@ -251,6 +255,7 @@ export const useBudgetStore = create(
                     const newExpense = {
                         ...expense,
                         id: expense.id || crypto.randomUUID(),
+                        createdAt: new Date().toISOString(),
                     };
                     const updated = [...state.expenses, newExpense];
                     return {
@@ -307,6 +312,7 @@ export const useBudgetStore = create(
                             hoursPerWeek: 40,
                             grossSalary: 0,
                             state: "WI",
+                            createdAt: new Date().toISOString(),
                         },
                     ],
                     selectedSourceId: "primary",
