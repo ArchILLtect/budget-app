@@ -1,17 +1,19 @@
 import {
   Box
 } from '@chakra-ui/react';
-import { useBudgetStore } from '../../state/budgetStore';
 import MonthlyPlanSummary from '../../components/MonthlyPlanSummary';
+import MonthlyActualSummary from '../../components/MonthlyActualSummary';
+import SavingsLog from '../../components/SavingsLog';
 
-export default function SavingsProgressBar() {
-
-  const selectedMonth = useBudgetStore(s => s.selectedMonth);
-  const plan = useBudgetStore(s => s.monthlyPlans[selectedMonth]);
+export default function BudgetTracker() {
 
   return (
     <Box>
-      <MonthlyPlanSummary plan={plan} />
+      <MonthlyPlanSummary />
+
+      <MonthlyActualSummary />
+
+      <SavingsLog />
     </Box>
   );
 }
