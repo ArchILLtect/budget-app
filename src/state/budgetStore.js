@@ -75,6 +75,13 @@ export const useBudgetStore = create(
             savingsGoal: 10000,
             setSavingsGoal: (goal) => set(() => ({ savingsGoal: goal })),
             savingsLogs: {}, // key: '2025-07', value: [{ amount, date }]
+            resetSavingsLogs: () => set(() => ({ savingsLogs: {} })),
+            getTotalSavingsLogged: () => {
+                const { savingsLogs } = useBudgetStore.getState();
+                return Object.values(savingsLogs)
+                    .flat()
+                    .reduce((sum, entry) => sum + (entry.amount || 0), 0);
+            },
             addSavingsLog: (month, entry) =>
                 set((state) => {
                     const logs = state.savingsLogs[month] || [];
@@ -107,7 +114,6 @@ export const useBudgetStore = create(
                         actualExpenses: JSON.parse(
                             JSON.stringify(planData.expenses || [])
                         ),
-                        actualSavings: +planData.totalSavings?.toFixed(2) || 0,
                     };
 
                     return {
@@ -146,6 +152,24 @@ export const useBudgetStore = create(
                         },
                     },
                 })),
+            // 🔁 Reset the entire log for a month -- BudgetTracker-->Savings Log
+            resetSavingsLog: (month) =>
+                set((state) => {
+                    const newLogs = { ...state.savingsLogs };
+                    delete newLogs[month];
+                    return { savingsLogs: newLogs };
+                }),
+            // ❌ Delete a specific entry (by index or ID) -- BudgetTracker-->Savings Log
+            deleteSavingsEntry: (month, index) =>
+                set((state) => {
+                    const logs = state.savingsLogs[month] || [];
+                    return {
+                        savingsLogs: {
+                            ...state.savingsLogs,
+                            [month]: logs.filter((_, i) => i !== index),
+                        },
+                    };
+                }),
             getTotalGrossIncome: () => {
                 const { incomeSources } = useBudgetStore.getState();
                 if (!Array.isArray(incomeSources)) return 0;

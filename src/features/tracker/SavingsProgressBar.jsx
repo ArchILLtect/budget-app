@@ -20,15 +20,18 @@ import dayjs from 'dayjs';
 export default function SavingsProgressBar() {
 
   const currentMonthKey = dayjs().format('YYYY-MM');
-  const monthlyData = useBudgetStore((s) => s.monthlyData[currentMonthKey]);
-  const setSavingsGoal = useBudgetStore((s) => s.setSavingsGoal);
+  const monthlyActuals = useBudgetStore((s) => s.monthlyActuals[currentMonthKey]);
   const savingsGoal = useBudgetStore((s) => s.savingsGoal);
+  const setSavingsGoal = useBudgetStore((s) => s.setSavingsGoal);
+  const resetSavingsLogs = useBudgetStore((s) => s.resetSavingsLogs);
+  const getTotalSavingsLogged = useBudgetStore((s) => s.getTotalSavingsLogged);
   const [showGoalEdit, setshowGoalEdit] = useState(false)
   const toast = useToast();
   const [newGoal, setNewGoal] = useState(savingsGoal);
 
-  const actualSavings = monthlyData?.actualSavings || 0;
-  const progress = savingsGoal > 0 ? Math.min((actualSavings / savingsGoal) * 100, 100) : 0;
+  const totalSaved = getTotalSavingsLogged();
+  // const actualSavings = monthlyActuals?.actualSavings || 0;
+  const progress = savingsGoal > 0 ? (totalSaved / savingsGoal) * 100 : 0;
 
   const handleGoalSave = () => {
     setSavingsGoal(newGoal);
@@ -37,9 +40,10 @@ export default function SavingsProgressBar() {
 
   const resetGoal = () => {
     const confirm = window.confirm(
-      `Are you sure you want to reset the goal? This will remove your current savings progress of $${actualSavings.toLocaleString(undefined, { minimumFractionDigits: 2 })}.`
+      `Are you sure you want to reset the goal? This will remove your current savings progress of $${totalSaved.toLocaleString(undefined, { minimumFractionDigits: 2 })}.`
     );
     if (confirm) {
+      resetSavingsLogs();
       console.log("Resetting savings goal");
       toast({ title: 'Savings goal reset!', status: 'error', duration: 2000 });
     }
@@ -52,7 +56,7 @@ export default function SavingsProgressBar() {
       <Stat mb={4} textAlign="center">
         <StatLabel>Savings Goal Progress</StatLabel>
         <StatNumber color="green.500">
-          ${actualSavings.toLocaleString(undefined, { minimumFractionDigits: 2 })} / ${savingsGoal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          ${totalSaved.toLocaleString(undefined, { minimumFractionDigits: 2 })} / ${savingsGoal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </StatNumber>
       </Stat>
       <Button size="xs" colorScheme="red" onClick={() => resetGoal()}>Reset</Button>
@@ -80,7 +84,7 @@ export default function SavingsProgressBar() {
               </HStack>
             </Flex>
             <Text fontSize="sm" color="gray.500">
-              You have saved {actualSavings.toLocaleString(undefined, { minimumFractionDigits: 2 })} this month. Your goal is to save {savingsGoal.toLocaleString(undefined, { minimumFractionDigits: 2 })}.
+              You have saved {totalSaved.toLocaleString(undefined, { minimumFractionDigits: 2 })} this month. Your goal is to save {savingsGoal.toLocaleString(undefined, { minimumFractionDigits: 2 })}.
             </Text>
             <Text fontSize="sm" color="gray.500">
               Adjust your savings goal to stay on track with your budget.
