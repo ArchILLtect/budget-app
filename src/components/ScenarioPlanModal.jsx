@@ -50,8 +50,7 @@ export default function ScenarioPlanModal({ isOpen, onClose }) {
       netIncome: netIncome,
       savingsPercent: savingsPercent,
       totalExpenses: totalExpenses,
-      estLeftover: estLeftover,
-      totalSavings: estSavings
+      estLeftover: estLeftover
     });
 
     onClose();
