@@ -4,6 +4,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { useBudgetStore } from "../state/budgetStore";
+import { calculateTotalTaxes, calculateNetIncome } from "../utils/calcUtils";
 
 export default function ScenarioPlanModal({ isOpen, onClose }) {
   const scenarios = useBudgetStore((s) => s.scenarios);
@@ -16,17 +17,9 @@ export default function ScenarioPlanModal({ isOpen, onClose }) {
     const scenario = scenarios[selectedScenario];
     if (!scenario) return;
 
-    const netIncome = scenario.incomeSources?.length
-      ? scenario.incomeSources.reduce((sum, src) => {
-          if (src.type === "hourly") {
-            const base = Math.min(src.hoursPerWeek || 0, 40);
-            const ot = Math.max((src.hoursPerWeek || 0) - 40, 0);
-            return sum + ((src.hourlyRate || 0) * base + (src.hourlyRate || 0) * 1.5 * ot) * 52 / 12;
-          } else {
-            return sum + (src.grossSalary || 0) / 12;
-          }
-        }, 0)
-      : 0;
+    const grossIncome = calculateNetIncome(scenario.incomeSources);
+    const totalTaxes = calculateTotalTaxes(grossIncome);
+    const netIncome = (grossIncome - totalTaxes.total) / 12;
 
     const savingsPercent =
       scenario.savingsMode === "10"
@@ -39,7 +32,7 @@ export default function ScenarioPlanModal({ isOpen, onClose }) {
 
     const estSavings = +(netIncome * savingsPercent).toFixed(2);
     const totalExpenses = scenario.expenses?.reduce((sum, e) => sum + (e.amount || 0), 0) || 0;
-    const estLeftover = netIncome - totalExpenses - estSavings;
+    const estLeftover = netIncome - totalExpenses;
 
     saveMonthlyPlan(selectedMonth, {
       scenarioName: selectedScenario,
@@ -49,6 +42,7 @@ export default function ScenarioPlanModal({ isOpen, onClose }) {
       customSavings: scenario.customSavings,
       netIncome: netIncome,
       savingsPercent: savingsPercent,
+      totalSavings: estSavings,
       totalExpenses: totalExpenses,
       estLeftover: estLeftover
     });
