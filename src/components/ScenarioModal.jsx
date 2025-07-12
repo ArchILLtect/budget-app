@@ -10,7 +10,7 @@ export default function ScenarioModal({ isOpen, onClose }) {
   const [mode, setMode] = useState('copy'); // 'copy' or 'blank'
 
   const saveScenario = useBudgetStore((s) => s.saveScenario);
-  const reset = useBudgetStore((s) => s.reset);
+  const reset = useBudgetStore((s) => s.resetScenario);
 
   const handleSave = () => {
     if (!name) return;
