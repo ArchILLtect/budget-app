@@ -45,11 +45,11 @@ export default function ExpenseTracker() {
   }
 
   const netIncome = useBudgetStore((s) => s.getTotalNetIncome().net);
-  const monthlyIncome = netIncome / 12
+  const monthlyIncome = netIncome / 12;
 
   const totalExpenses = expenses.reduce((sum, e) => sum + (e.amount || 0), 0)
   const savingsValue = expenses.find(e => e.id === 'savings')?.amount || 0
-  const leftover = monthlyIncome - totalExpenses
+  const leftover = monthlyIncome - totalExpenses;
 
   useEffect(() => {
     const monthlyIncome = netIncome / 12
@@ -176,17 +176,17 @@ export default function ExpenseTracker() {
               <StatNumber color="teal.600">${monthlyIncome.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</StatNumber>
             </Stat>
 
-            {savingsValue > 0 && (
-            <Stat textAlign={'center'}>
-              <StatLabel>Total Savings</StatLabel>
-              <StatNumber color="teal.600">${savingsValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</StatNumber>
-            </Stat>
-            )}
-
             <Stat textAlign={'center'}>
               <StatLabel>Total Expenses</StatLabel>
               <StatNumber color="teal.600">${totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</StatNumber>
             </Stat>
+
+            {savingsValue > 0 && (
+              <Stat textAlign={'center'}>
+                <StatLabel>Total Savings</StatLabel>
+                <StatNumber color="teal.600">${savingsValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</StatNumber>
+              </Stat>
+            )}
 
             <Stat textAlign={'center'}>
               <StatLabel>Leftover</StatLabel>
