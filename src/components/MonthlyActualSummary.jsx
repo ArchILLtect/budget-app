@@ -39,12 +39,12 @@ export default function MonthlyActualSummary() {
 
         <Stat textAlign={'center'}>
           <StatLabel>Total Saved</StatLabel>
-          <StatNumber color="green.500">${savings.toLocaleString()}</StatNumber>
+          <StatNumber color="green.500">${savings > 0 ? savings.toFixed(2) : savings}</StatNumber>
         </Stat>
 
         <Stat textAlign={'center'}>
           <StatLabel>Leftover</StatLabel>
-          <StatNumber color={leftover >= 0 ? 'blue.500' : 'red.500'}>${leftover.toLocaleString()}</StatNumber>
+          <StatNumber color={leftover >= 0 ? 'blue.500' : 'red.500'}>${leftover.toFixed(2)}</StatNumber>
         </Stat>
       </StatGroup>
 
