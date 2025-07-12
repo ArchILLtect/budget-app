@@ -1,74 +1,82 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { calculateTotalTaxes } from "../utils/taxUtils";
-import dayjs from "dayjs";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { calculateTotalTaxes, calculateNetIncome } from '../utils/calcUtils';
+import dayjs from 'dayjs';
 
 // TODO: Allow users to change overtime threshold and tax rates
 
-const currentMonth = dayjs().format("YYYY-MM"); // e.g. "2025-07"
+const currentMonth = dayjs().format('YYYY-MM'); // e.g. "2025-07"
 
 export const useBudgetStore = create(
     persist(
         (set) => ({
-            currentPage: "planner", // or null initially
+            currentPage: 'planner', // or null initially
             setCurrentPage: (page) => set(() => ({ currentPage: page })),
+            filingStatus: 'headOfHousehold', // 'single' | 'marriedSeparate' | 'marriedJoint' | 'headOfHousehold'
             incomeSources: [
                 {
-                    id: "primary",
-                    label: "Primary Job",
-                    type: "hourly",
+                    id: 'primary',
+                    label: 'Primary Job',
+                    type: 'hourly',
                     hourlyRate: 25,
                     hoursPerWeek: 40,
-                    grossSalary: 0,
-                    state: "WI",
+                    grossSalary: 52000,
+                    state: 'WI',
                     createdAt: new Date().toISOString(),
                 },
             ],
             scenarios: {
                 Main: {
-                    name: "Main",
+                    name: 'Main',
                     incomeSources: [
                         {
-                            id: "primary",
-                            label: "Primary Job",
-                            type: "hourly",
+                            id: 'primary',
+                            label: 'Primary Job',
+                            type: 'hourly',
                             hourlyRate: 25,
                             hoursPerWeek: 40,
                             grossSalary: 0,
-                            state: "WI",
-                            createdAt: new Date().toISOString(),
+                            state: 'WI',
                         },
                     ],
-                    expenses: [{ id: "rent", name: "Rent", amount: 0 }],
+                    expenses: [{ id: 'rent', name: 'Rent', amount: 0 }],
+                    savingsMode: '20',
+                    filingStatus: 'single', // 'single' | 'marriedSeparate' | 'marriedJoint' | 'headOfHousehold'
                 },
                 College: {
-                    name: "College",
+                    name: 'College',
                     incomeSources: [
                         {
-                            id: "primary",
-                            label: "Primary Job",
-                            type: "hourly",
+                            id: 'primary',
+                            label: 'Primary Job',
+                            type: 'hourly',
                             hourlyRate: 25,
-                            hoursPerWeek: 40,
-                            grossSalary: 0,
-                            state: "WI",
+                            hoursPerWeek: 20,
+                            grossSalary: 52000,
+                            state: 'WI',
                             createdAt: new Date().toISOString(),
                         },
                     ],
-                    expenses: [{ id: "rent", name: "Rent", amount: 0 }],
+                    expenses: [{ id: 'rent', name: 'Rent', amount: 1000 }],
+                    filingStatus: 'single', // 'single' | 'marriedSeparate' | 'marriedJoint' | 'headOfHousehold'
+                    customSavings: 0,
+                    savingsMode: '10',
                 },
             },
-            selectedSourceId: "primary",
-            showIncomeInputs: true, // Controls visibility of income input fields
+            selectedSourceId: 'primary',
+            showIncomeInputs: false, // Controls visibility of income input fields
             showExpenseInputs: true, // Controls visibility of income input fields
-            setShowIncomeInputs: (value) =>
-                set(() => ({ showIncomeInputs: value })),
-            setShowExpenseInputs: (value) =>
-                set(() => ({ showExpenseInputs: value })),
-            expenses: [{ id: "rent", name: "Rent", amount: 0 }],
-            savingsMode: "none", // 'none' | '10' | '20' | 'custom'
+            setShowIncomeInputs: (value) => set(() => ({ showIncomeInputs: value })),
+            setShowExpenseInputs: (value) => set(() => ({ showExpenseInputs: value })),
+            expenses: [
+                { id: 'rent', name: 'Rent', amount: 1600 },
+                { id: 'groceries', name: 'Groceries', amount: 400 },
+                { id: 'phone', name: 'Phone', amount: 100 },
+            ],
+            savingsMode: 'none', // 'none' | '10' | '20' | 'custom'
             customSavings: 0,
-            currentScenario: "Main",
+            currentScenario: 'Main',
+            filingStatus: 'single', // 'single' | 'marriedSeparate' | 'marriedJoint' | 'headOfHousehold'
             // 📅 Current month being tracked
             selectedMonth: currentMonth,
             setSelectedMonth: (month) => set(() => ({ selectedMonth: month })),
@@ -173,44 +181,10 @@ export const useBudgetStore = create(
             getTotalGrossIncome: () => {
                 const { incomeSources } = useBudgetStore.getState();
                 if (!Array.isArray(incomeSources)) return 0;
-                return incomeSources.reduce((sum, source) => {
-                    if (source.type === "hourly") {
-                        const baseHours = Math.min(
-                            source.hoursPerWeek || 0,
-                            40
-                        );
-                        const overtime = Math.max(
-                            (source.hoursPerWeek || 0) - 40,
-                            0
-                        );
-                        return (
-                            sum +
-                            ((source.hourlyRate || 0) * baseHours +
-                                (source.hourlyRate || 0) * 1.5 * overtime) *
-                                52
-                        );
-                    } else {
-                        return sum + (source.grossSalary || 0);
-                    }
-                }, 0);
+                return calculateNetIncome(incomeSources);
             },
             getTotalNetIncome: () => {
-                const { incomeSources } = useBudgetStore.getState();
-                const totalGross = incomeSources.reduce((sum, source) => {
-                    if (source.type === "hourly") {
-                        const base = Math.min(source.hoursPerWeek || 0, 40);
-                        const ot = Math.max((source.hoursPerWeek || 0) - 40, 0);
-                        return (
-                            sum +
-                            ((source.hourlyRate || 0) * base +
-                                (source.hourlyRate || 0) * 1.5 * ot) *
-                                52
-                        );
-                    } else {
-                        return sum + (source.grossSalary || 0);
-                    }
-                }, 0);
-
+                const totalGross = useBudgetStore.getState().getTotalGrossIncome();
                 const taxes = calculateTotalTaxes(totalGross);
                 return {
                     net: totalGross - taxes.total,
@@ -255,9 +229,7 @@ export const useBudgetStore = create(
                 }),
             removeIncomeSource: (id) =>
                 set((state) => {
-                    const updated = state.incomeSources.filter(
-                        (s) => s.id !== id
-                    );
+                    const updated = state.incomeSources.filter((s) => s.id !== id);
                     return {
                         incomeSources: updated,
                         selectedSourceId:
@@ -325,24 +297,25 @@ export const useBudgetStore = create(
                 }),
             setSavingsMode: (mode) => set(() => ({ savingsMode: mode })),
             setCustomSavings: (value) => set(() => ({ customSavings: value })),
-            reset: () =>
+            resetScenario: () =>
                 set({
                     incomeSources: [
                         {
-                            id: "primary",
-                            label: "Primary Job",
-                            type: "hourly",
+                            id: 'primary',
+                            label: 'Primary Job',
+                            type: 'hourly',
                             hourlyRate: 25,
                             hoursPerWeek: 40,
                             grossSalary: 0,
-                            state: "WI",
+                            state: 'WI',
                             createdAt: new Date().toISOString(),
                         },
                     ],
-                    selectedSourceId: "primary",
-                    expenses: [{ id: "rent", name: "Rent", amount: 0 }],
-                    savingsMode: "none",
+                    selectedSourceId: 'primary',
+                    expenses: [{ id: 'rent', name: 'Rent', amount: 0 }],
+                    savingsMode: 'none',
                     customSavings: 0,
+                    filingStatus: 'headOfHousehold', // 'single' | 'married' | 'head'
                     // TODO: reset scenarios to default?
                 }),
             setScenario: (name) => set({ currentScenario: name }),
@@ -355,15 +328,24 @@ export const useBudgetStore = create(
                             incomeSources: JSON.parse(
                                 JSON.stringify(state.incomeSources)
                             ),
-                            expenses: JSON.parse(
-                                JSON.stringify(state.expenses)
-                            ),
+                            expenses: JSON.parse(JSON.stringify(state.expenses)),
                             savingsMode: state.savingsMode,
                             customSavings: state.customSavings,
                             showIncomeInputs: true,
+                            filingStatus: state.filingStatus,
                         },
                     },
                     currentScenario: name,
+                })),
+            updateScenario: (key, updates) =>
+                set((state) => ({
+                    scenarios: {
+                        ...state.scenarios,
+                        [key]: {
+                            ...state.scenarios[key],
+                            ...updates,
+                        },
+                    },
                 })),
             loadScenario: (name) =>
                 set((state) => {
@@ -373,12 +355,11 @@ export const useBudgetStore = create(
                               incomeSources: JSON.parse(
                                   JSON.stringify(scenario.incomeSources)
                               ),
-                              expenses: JSON.parse(
-                                  JSON.stringify(scenario.expenses)
-                              ),
-                              savingsMode: scenario.savingsMode || "none",
+                              expenses: JSON.parse(JSON.stringify(scenario.expenses)),
+                              savingsMode: scenario.savingsMode || 'none',
                               customSavings: scenario.customSavings || 0,
                               currentScenario: name,
+                              filingStatus: scenario.filingStatus,
                               // TODO: add following to reset input opening on scenario change
                               showIncomeInputs: false, // 👈 Optional reset
                           }
@@ -390,7 +371,7 @@ export const useBudgetStore = create(
                     delete updated[name];
 
                     const isCurrent = state.currentScenario === name;
-                    const fallback = Object.keys(updated)[0] || "Main";
+                    const fallback = Object.keys(updated)[0] || 'Main';
 
                     return {
                         scenarios: updated,
@@ -398,17 +379,14 @@ export const useBudgetStore = create(
                             ? {
                                   currentScenario: fallback,
                                   incomeSources: JSON.parse(
-                                      JSON.stringify(
-                                          updated[fallback].incomeSources
-                                      )
+                                      JSON.stringify(updated[fallback].incomeSources)
                                   ),
                                   expenses: JSON.parse(
                                       JSON.stringify(updated[fallback].expenses)
                                   ),
-                                  savingsMode:
-                                      updated[fallback].savingsMode || "none",
-                                  customSavings:
-                                      updated[fallback].customSavings || 0,
+                                  savingsMode: updated[fallback].savingsMode || 'none',
+                                  customSavings: updated[fallback].customSavings || 0,
+                                  filingStatus: updated[fallback].filingStatus,
                               }
                             : {}),
                     };
@@ -416,7 +394,7 @@ export const useBudgetStore = create(
         }),
 
         {
-            name: "budget-app-storage", // key in localStorage
+            name: 'budget-app-storage', // key in localStorage
         }
     )
 );
