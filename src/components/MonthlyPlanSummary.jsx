@@ -42,7 +42,7 @@ export default function MonthlyPlanSummary() {
 
         <Stat textAlign={'center'}>
             <StatLabel>Leftover</StatLabel>
-            <StatNumber color={plan.totalSavings >= 0 ? "green.600" : "red.600"} fontSize="2xl">
+            <StatNumber color={plan.estLeftover >= 0 ? "green.600" : "red.600"} fontSize="2xl">
               ${plan.estLeftover?.toFixed(2)}
             </StatNumber>
         </Stat>
