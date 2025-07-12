@@ -36,10 +36,10 @@ export default function ScenarioSelector() {
                         colorScheme="red"
                         onClick={() => {
                             if (
-                            selectedScenario &&
-                            confirm(`Delete scenario "${selectedScenario}"? This cannot be undone.`)
+                                selectedScenario &&
+                                confirm(`Delete scenario "${selectedScenario}"? This cannot be undone.`)
                             ) {
-                            deleteScenario(selectedScenario);
+                                deleteScenario(selectedScenario);
                             }
                         }}
                         >
