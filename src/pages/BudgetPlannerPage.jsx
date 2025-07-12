@@ -9,7 +9,7 @@ import ExpensePie from '../components/ExpensePie'
 
 // TODO: Create a toast for when a scenario is created.
 
-function BudgetPlanner() {
+function BudgetPlannerPage() {
 
   return (
     <Box bg="gray.200" p={4} minH="100vh">
@@ -29,4 +29,4 @@ function BudgetPlanner() {
   )
 }
 
-export default BudgetPlanner
+export default BudgetPlannerPage
