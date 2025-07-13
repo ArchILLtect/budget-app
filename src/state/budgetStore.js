@@ -28,36 +28,47 @@ export const useBudgetStore = create(
             scenarios: {
                 Main: {
                     name: 'Main',
-                    incomeSources: [
-                        {
-                            id: 'primary',
-                            label: 'Primary Job',
-                            type: 'hourly',
-                            hourlyRate: 25,
-                            hoursPerWeek: 40,
-                            grossSalary: 0,
-                            state: 'WI',
+                    people: {
+                        You: {
+                            name: 'You',
+                            incomeSources: [
+                                {
+                                    id: 'primary',
+                                    label: 'Primary Job',
+                                    type: 'hourly',
+                                    hourlyRate: 25,
+                                    hoursPerWeek: 40,
+                                    grossSalary: 0,
+                                    state: 'WI',
+                                    createdAt: new Date().toISOString(),
+                                },
+                            ],
+                            expenses: [{ id: 'rent', name: 'Rent', amount: 0 }],
                         },
-                    ],
-                    expenses: [{ id: 'rent', name: 'Rent', amount: 0 }],
+                    },
                     savingsMode: '20',
                     filingStatus: 'single', // 'single' | 'marriedSeparate' | 'marriedJoint' | 'headOfHousehold'
                 },
                 College: {
                     name: 'College',
-                    incomeSources: [
-                        {
-                            id: 'primary',
-                            label: 'Primary Job',
-                            type: 'hourly',
-                            hourlyRate: 25,
-                            hoursPerWeek: 20,
-                            grossSalary: 52000,
-                            state: 'WI',
-                            createdAt: new Date().toISOString(),
+                    people: {
+                        You: {
+                            name: 'You',
+                            incomeSources: [
+                                {
+                                    id: 'primary',
+                                    label: 'Primary Job',
+                                    type: 'hourly',
+                                    hourlyRate: 25,
+                                    hoursPerWeek: 40,
+                                    grossSalary: 0,
+                                    state: 'WI',
+                                    createdAt: new Date().toISOString(),
+                                },
+                            ],
+                            expenses: [{ id: 'rent', name: 'Rent', amount: 0 }],
                         },
-                    ],
-                    expenses: [{ id: 'rent', name: 'Rent', amount: 1000 }],
+                    },
                     filingStatus: 'single', // 'single' | 'marriedSeparate' | 'marriedJoint' | 'headOfHousehold'
                     customSavings: 0,
                     savingsMode: '10',
@@ -76,6 +87,10 @@ export const useBudgetStore = create(
             savingsMode: 'none', // 'none' | '10' | '20' | 'custom'
             customSavings: 0,
             currentScenario: 'Main',
+            currentPersonId: 'You',
+            setCurrentPersonId: (id) => set(() => ({ currentPersonId: id })),
+            setIncomeSources: (sources) => set(() => ({ incomeSources: sources })),
+            setExpenses: (expenses) => set(() => ({ expenses })),
             filingStatus: 'single', // 'single' | 'marriedSeparate' | 'marriedJoint' | 'headOfHousehold'
             // 📅 Current month being tracked
             selectedMonth: currentMonth,
@@ -320,23 +335,38 @@ export const useBudgetStore = create(
                 }),
             setScenario: (name) => set({ currentScenario: name }),
             saveScenario: (name) =>
-                set((state) => ({
-                    scenarios: {
-                        ...state.scenarios,
-                        [name]: {
-                            name,
-                            incomeSources: JSON.parse(
-                                JSON.stringify(state.incomeSources)
-                            ),
-                            expenses: JSON.parse(JSON.stringify(state.expenses)),
-                            savingsMode: state.savingsMode,
-                            customSavings: state.customSavings,
-                            showIncomeInputs: true,
-                            filingStatus: state.filingStatus,
+                set((state) => {
+                    const personId = state.currentPersonId || 'you';
+                    const existingScenario = state.scenarios[name] || {};
+
+                    return {
+                        scenarios: {
+                            ...state.scenarios,
+                            [name]: {
+                                ...existingScenario,
+                                name,
+                                people: {
+                                    ...(existingScenario.people || {}),
+                                    [personId]: {
+                                        name:
+                                            state.scenarios[name]?.people?.[personId]
+                                                ?.name || personId,
+                                        incomeSources: JSON.parse(
+                                            JSON.stringify(state.incomeSources)
+                                        ),
+                                        expenses: JSON.parse(
+                                            JSON.stringify(state.expenses)
+                                        ),
+                                    },
+                                },
+                                savingsMode: state.savingsMode,
+                                customSavings: state.customSavings,
+                                filingStatus: state.filingStatus,
+                            },
                         },
-                    },
-                    currentScenario: name,
-                })),
+                        currentScenario: name,
+                    };
+                }),
             updateScenario: (key, updates) =>
                 set((state) => ({
                     scenarios: {
@@ -350,16 +380,19 @@ export const useBudgetStore = create(
             loadScenario: (name) =>
                 set((state) => {
                     const scenario = state.scenarios[name];
+                    const defaultPersonId = Object.keys(scenario.people)[0];
+                    const person = scenario.people[defaultPersonId];
                     return scenario
                         ? {
                               incomeSources: JSON.parse(
-                                  JSON.stringify(scenario.incomeSources)
+                                  JSON.stringify(person.incomeSources)
                               ),
-                              expenses: JSON.parse(JSON.stringify(scenario.expenses)),
+                              expenses: JSON.parse(JSON.stringify(person.expenses)),
                               savingsMode: scenario.savingsMode || 'none',
                               customSavings: scenario.customSavings || 0,
                               currentScenario: name,
-                              filingStatus: scenario.filingStatus,
+                              currentPersonId: defaultPersonId,
+                              filingStatus: scenario.filingStatus || 'single',
                               // TODO: add following to reset input opening on scenario change
                               showIncomeInputs: false, // 👈 Optional reset
                           }
@@ -370,23 +403,26 @@ export const useBudgetStore = create(
                     const updated = { ...state.scenarios };
                     delete updated[name];
 
-                    const isCurrent = state.currentScenario === name;
                     const fallback = Object.keys(updated)[0] || 'Main';
+                    const fallbackScenario = updated[fallback];
+                    const fallbackPerson =
+                        fallbackScenario && Object.keys(fallbackScenario.people || {})[0];
 
                     return {
                         scenarios: updated,
-                        ...(isCurrent && updated[fallback]
+                        ...(fallbackScenario
                             ? {
                                   currentScenario: fallback,
-                                  incomeSources: JSON.parse(
-                                      JSON.stringify(updated[fallback].incomeSources)
-                                  ),
-                                  expenses: JSON.parse(
-                                      JSON.stringify(updated[fallback].expenses)
-                                  ),
-                                  savingsMode: updated[fallback].savingsMode || 'none',
-                                  customSavings: updated[fallback].customSavings || 0,
-                                  filingStatus: updated[fallback].filingStatus,
+                                  currentPersonId: fallbackPerson,
+                                  incomeSources:
+                                      fallbackScenario.people?.[fallbackPerson]
+                                          ?.incomeSources || [],
+                                  expenses:
+                                      fallbackScenario.people?.[fallbackPerson]
+                                          ?.expenses || [],
+                                  savingsMode: fallbackScenario.savingsMode || 'none',
+                                  customSavings: fallbackScenario.customSavings || 0,
+                                  filingStatus: fallbackScenario.filingStatus || 'single',
                               }
                             : {}),
                     };

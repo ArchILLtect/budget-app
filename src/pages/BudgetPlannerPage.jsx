@@ -1,11 +1,13 @@
 import { Box,
   Heading,
-  Center
+  Center,
+  Card
 } from '@chakra-ui/react'
 import ScenarioSelector from '../components/ScenarioSelector'
 import IncomeCalculator from '../features/planner/IncomeCalculator'
 import ExpenseTracker from '../features/planner/ExpenseTracker'
 import ExpensePie from '../components/ExpensePie'
+import PersonSelector from '../components/PersonSelector'
 
 // TODO: Create a toast for when a scenario is created.
 
@@ -21,9 +23,13 @@ function BudgetPlannerPage() {
         </Center>
         <ScenarioSelector />
         <hr style={{marginTop: 15 + "px", marginBottom: 15 + "px"}}/>
-        <IncomeCalculator />
-        <ExpenseTracker />
-        <ExpensePie />
+        <Card p={4}>
+          <PersonSelector />
+          <IncomeCalculator />
+          <ExpenseTracker />
+          <ExpensePie />
+        </Card>
+
       </Box>
     </Box>
   )
